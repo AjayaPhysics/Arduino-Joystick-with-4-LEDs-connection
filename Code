@@ -1,0 +1,76 @@
+// Pin definitions
+const int ledUp = 8;
+const int ledDown = 9;
+const int ledLeft = 10;
+const int ledRight = 11;
+const int joyX = A0;   // Joystick X-axis
+const int joyY = A1;   // Joystick Y-axis
+const int joyButton = 7; // Joystick button pin
+
+void setup() {
+  // Set LED pins as outputs
+  pinMode(ledUp, OUTPUT);
+  pinMode(ledDown, OUTPUT);
+  pinMode(ledLeft, OUTPUT);
+  pinMode(ledRight, OUTPUT);
+  
+  // Set joystick button pin as input with pull-up resistor
+  pinMode(joyButton, INPUT_PULLUP);
+
+  // Initialize serial communication (optional for debugging)
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Read the joystick's X and Y positions
+  int xPosition = analogRead(joyX);
+  int yPosition = analogRead(joyY);
+
+  // Read the state of the joystick button (LOW = pressed, HIGH = not pressed)
+  bool isButtonPressed = !digitalRead(joyButton); // Inverted because of pull-up resistor
+
+  // Debugging - print joystick values and button state
+  Serial.print("X: ");
+  Serial.print(xPosition);
+  Serial.print(" Y: ");
+  Serial.print(yPosition);
+  Serial.print(" Button: ");
+  Serial.println(isButtonPressed ? "Pressed" : "Not Pressed");
+  
+  // Threshold values for determining direction
+  int threshold = 200;
+
+  // Reset all LEDs
+  digitalWrite(ledUp, LOW);
+  digitalWrite(ledDown, LOW);
+  digitalWrite(ledLeft, LOW);
+  digitalWrite(ledRight, LOW);
+
+  // If the button is pressed, turn all LEDs on
+  if (isButtonPressed) {
+    digitalWrite(ledUp, HIGH);
+    digitalWrite(ledDown, HIGH);
+    digitalWrite(ledLeft, HIGH);
+    digitalWrite(ledRight, HIGH);
+  } else {
+    // Determine joystick direction based on X and Y readings
+    if (yPosition < (512 - threshold)) {
+      // Up movement
+      digitalWrite(ledUp, HIGH);
+    } else if (yPosition > (512 + threshold)) {
+      // Down movement
+      digitalWrite(ledDown, HIGH);
+    }
+
+    if (xPosition < (512 - threshold)) {
+      // Left movement
+      digitalWrite(ledLeft, HIGH);
+    } else if (xPosition > (512 + threshold)) {
+      // Right movement
+      digitalWrite(ledRight, HIGH);
+    }
+  }
+
+  // Small delay for stability
+  delay(100);
+}
